@@ -4,12 +4,11 @@ import { ChessBoard } from "./ChessBoard";
 import { View } from "native-base";
 import { Dimensions } from "react-native";
 import { Controller } from "./Controller";
+import { Header } from "./Header";
+import { useCreateNewGameState } from "expo-go/recoil/NewGame";
 
-interface Props {
-  size: 9 | 13 | 19;
-}
-
-export const GoGame = React.memo(({ size }: Props) => {
+export const GoGame = React.memo(() => {
+  const size = useCreateNewGameState((state) => state.size);
   const width = Dimensions.get("screen").width;
 
   return (
@@ -27,4 +26,4 @@ export const GoGame = React.memo(({ size }: Props) => {
   );
 });
 
-export { Controller };
+export { Controller, Header };

@@ -6,9 +6,11 @@ export type Player = "white" | "black";
 
 interface State {
   currentPlayer: Player;
-  history: Stone[][];
+  history: Round[];
   currentIndex: number;
   pass: number;
+  // 打劫
+  ko: boolean;
 }
 
 interface Stone {
@@ -18,11 +20,30 @@ interface Stone {
   step: number;
 }
 
+interface Round {
+  step: number;
+  movement: Stone[];
+  captured: StoneGroup[];
+  move: Stone | null;
+  blackTaken: number;
+  whiteTaken: number;
+}
+
 const initialState: State = {
   currentPlayer: "black",
-  history: [[]],
+  history: [
+    {
+      step: 0,
+      movement: [],
+      captured: [],
+      move: null,
+      blackTaken: 0,
+      whiteTaken: 0,
+    },
+  ],
   currentIndex: 0,
   pass: 0,
+  ko: false,
 };
 
 interface StoneGroup {
@@ -111,6 +132,11 @@ const getGroup = (
 };
 
 // Hooks
+export const useGameState = <T>(fn: (state: State) => T): T => {
+  const state = Recoil.useRecoilValue(GameState);
+  return fn(state);
+};
+
 export const useController = () => {
   const [state, setState] = Recoil.useRecoilState(GameState);
 
@@ -161,6 +187,9 @@ export const useController = () => {
   const deleteMove = () => {
     const _history = [...state.history];
     const gameIndex = _history.length - 1;
+    if (_history.length === 1) {
+      return;
+    }
     if (state.currentIndex !== gameIndex) {
       setState({
         ...state,
@@ -172,8 +201,8 @@ export const useController = () => {
     if (canDelete) {
       setState({
         ...state,
-        history: _history.length === 0 ? [[]] : _history,
-        currentIndex: _history.length - 1 ? _history.length - 1 : 0,
+        history: _history,
+        currentIndex: _history.length - 1,
         currentPlayer: state.currentPlayer === "black" ? "white" : "black",
       });
     }
@@ -203,8 +232,11 @@ export const usePlaceStone = () => {
       }
 
       const game = state.history[gameIndex];
+      const movement = game.movement;
+      const lastMove = game.move;
+      const lastCaptured = game.captured;
 
-      const isExist = game.find(getStone(x, y));
+      const isExist = movement.find(getStone(x, y));
 
       if (isExist) {
         // is occupied
@@ -218,7 +250,7 @@ export const usePlaceStone = () => {
         step: state.history.length,
       };
 
-      const _game = [...game, stone];
+      const _game = [...movement, stone];
 
       const neighbors = getNeighbors(x, y, _game);
 
@@ -233,6 +265,28 @@ export const usePlaceStone = () => {
         }
       });
 
+      if (
+        lastMove &&
+        captured.some(
+          (_) =>
+            _.stones.length === 1 &&
+            _.stones[0].x === lastMove.x &&
+            _.stones[0].y === lastMove.y
+        ) &&
+        lastCaptured.some(
+          (_) =>
+            _.stones.length === 1 &&
+            _.stones[0].x === stone.x &&
+            _.stones[0].y === stone.y
+        )
+      ) {
+        setState({
+          ...state,
+          ko: true,
+        });
+        return;
+      }
+
       if (!captured.length && getGroup(stone, _game, size).liberties === 0) {
         // Suicide
         return;
@@ -242,11 +296,28 @@ export const usePlaceStone = () => {
         (_) => !captured.some((group) => group.stones.includes(_))
       );
 
+      const totalTaken = captured.reduce(
+        (prev, curr) => prev + curr.stones.length,
+        0
+      );
+
+      const isBlack = state.currentPlayer === "black";
+
+      const newRound: Round = {
+        blackTaken: isBlack ? game.blackTaken + totalTaken : game.blackTaken,
+        whiteTaken: !isBlack ? game.whiteTaken + totalTaken : game.whiteTaken,
+        captured,
+        move: stone,
+        step: state.history.length,
+        movement: newState,
+      };
+
       setState((state) => ({
         ...state,
-        history: [...state.history, newState],
+        history: [...state.history, newRound],
         currentIndex: state.history.length,
         currentPlayer: state.currentPlayer === "black" ? "white" : "black",
+        ko: false,
       }));
     },
     [state]

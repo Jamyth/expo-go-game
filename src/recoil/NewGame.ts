@@ -29,6 +29,11 @@ export const CreateNewGameState = Recoil.atom<NewGameState>({
 });
 
 // Hooks
+export const useCreateNewGameState = <T>(fn: (state: NewGameState) => T): T => {
+  const state = Recoil.useRecoilValue(CreateNewGameState);
+  return fn(state);
+};
+
 export const useCreateNewGameAction = () => {
   const [state, setState] = Recoil.useRecoilState(CreateNewGameState);
 

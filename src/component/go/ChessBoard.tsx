@@ -20,7 +20,7 @@ export const ChessBoard = React.memo(({ size }: Props) => {
   const { history, currentIndex } = Recoil.useRecoilValue(GameState);
   const place = usePlaceStone();
 
-  const game = history[currentIndex];
+  const game = history[currentIndex].movement;
 
   const unitWidth = width / size;
 
