@@ -1,21 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { HomeNavigator } from "./src/navigator/HomeNavigator";
+import * as Font from "expo-font";
+import AppLoading from "expo-app-loading";
+import { Ionicons } from "@expo/vector-icons";
+import Recoil from "recoil";
+import { Root } from "native-base";
 
 export default function App() {
+  const [isReady, setIsReady] = React.useState(false);
+
+  const loadFont = async () => {
+    await Font.loadAsync({
+      Roboto: require("native-base/Fonts/Roboto.ttf"),
+      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+      ...Ionicons.font,
+    });
+  };
+
+  const loadAsset = async () => {
+    await Promise.all([loadFont()]);
+    setIsReady(true);
+  };
+
+  React.useEffect(() => {
+    loadAsset();
+  }, []);
+
+  if (!isReady) {
+    return <AppLoading />;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Recoil.RecoilRoot>
+      <SafeAreaProvider>
+        <Root>
+          <HomeNavigator />
+        </Root>
+      </SafeAreaProvider>
+    </Recoil.RecoilRoot>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
