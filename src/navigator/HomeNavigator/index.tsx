@@ -29,8 +29,16 @@ export const HomeNavigator = React.memo(() => {
   return (
     <NavigationContainer ref={navRef}>
       <Navigator initialRouteName="Home.Main">
-        <Screen name="Home.Main" component={MainScreen} />
-        <Screen name="Home.Create" component={CreateScreen} />
+        <Screen
+          name="Home.Main"
+          options={{ title: "對局列表" }}
+          component={MainScreen}
+        />
+        <Screen
+          name="Home.Create"
+          options={{ title: "新增對局" }}
+          component={CreateScreen}
+        />
         <Screen name="Home.Game" component={GameScreen} />
       </Navigator>
     </NavigationContainer>

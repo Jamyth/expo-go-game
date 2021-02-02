@@ -1,7 +1,8 @@
 import Recoil from "recoil";
 import { DateUtil } from "expo-go/util/DateUtil";
 
-interface NewGameState {
+export interface NewGameState {
+  id: string;
   matchName: string;
   size: 9 | 13 | 19;
   player1: Player;
@@ -12,23 +13,32 @@ interface Player {
   name: string;
 }
 
-const initialState: NewGameState = {
-  matchName: `Match on ${DateUtil.format(new Date())}`,
-  size: 9,
-  player1: {
-    name: "Player 1",
-  },
-  player2: {
-    name: "Player 2",
-  },
+const getInitialState = (): NewGameState => {
+  console.log("Updated");
+  return {
+    id: `${Date.now()}`,
+    matchName: `Match on ${DateUtil.format(new Date())}`,
+    size: 9,
+    player1: {
+      name: "Player 1",
+    },
+    player2: {
+      name: "Player 2",
+    },
+  };
 };
 
 export const CreateNewGameState = Recoil.atom<NewGameState>({
   key: "NewGameState",
-  default: initialState,
+  default: getInitialState(),
 });
 
 // Hooks
+export const useSetNewGameState = () => {
+  const setState = Recoil.useSetRecoilState(CreateNewGameState);
+  return setState;
+};
+
 export const useCreateNewGameState = <T>(fn: (state: NewGameState) => T): T => {
   const state = Recoil.useRecoilValue(CreateNewGameState);
   return fn(state);
@@ -36,6 +46,10 @@ export const useCreateNewGameState = <T>(fn: (state: NewGameState) => T): T => {
 
 export const useCreateNewGameAction = () => {
   const [state, setState] = Recoil.useRecoilState(CreateNewGameState);
+
+  const resetCreateNewGameState = () => {
+    setState(getInitialState());
+  };
 
   const updateSize = (size: NewGameState["size"]) => {
     setState({
@@ -74,5 +88,6 @@ export const useCreateNewGameAction = () => {
     updatePlayer1,
     updatePlayer2,
     updateMatchName,
+    resetCreateNewGameState,
   };
 };

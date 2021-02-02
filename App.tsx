@@ -6,6 +6,8 @@ import AppLoading from "expo-app-loading";
 import { Ionicons } from "@expo/vector-icons";
 import Recoil from "recoil";
 import { Root } from "native-base";
+import * as ScreenOrientation from "expo-screen-orientation";
+import { StatusBar } from "react-native";
 
 export default function App() {
   const [isReady, setIsReady] = React.useState(false);
@@ -18,8 +20,14 @@ export default function App() {
     });
   };
 
+  const lockPortrait = async () => {
+    return ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.PORTRAIT
+    );
+  };
+
   const loadAsset = async () => {
-    await Promise.all([loadFont()]);
+    await Promise.all([loadFont(), lockPortrait()]);
     setIsReady(true);
   };
 
@@ -34,6 +42,7 @@ export default function App() {
     <Recoil.RecoilRoot>
       <SafeAreaProvider>
         <Root>
+          <StatusBar barStyle="dark-content" />
           <HomeNavigator />
         </Root>
       </SafeAreaProvider>

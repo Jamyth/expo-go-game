@@ -27,13 +27,18 @@ export const CreateScreen = React.memo(({ navigation }: Props) => {
     updatePlayer1,
     updatePlayer2,
     updateMatchName,
+    resetCreateNewGameState,
   } = useCreateNewGameAction();
   const newGame = useCreateGame();
 
   const navigateToGame = () => {
     newGame();
-    navigation.navigate("Home.Game");
+    navigation.replace("Home.Game");
   };
+
+  React.useEffect(() => {
+    resetCreateNewGameState();
+  }, []);
 
   return (
     <Container>

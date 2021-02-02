@@ -1,4 +1,9 @@
-import { GameState, usePlaceStone } from "expo-go/recoil/Go";
+import {
+  GameState,
+  useGameState,
+  usePlaceStone,
+  useSetError,
+} from "expo-go/recoil/Go";
 import { Text } from "native-base";
 import React from "react";
 import {
@@ -17,7 +22,10 @@ interface Props {
 const width = Dimensions.get("screen").width;
 
 export const ChessBoard = React.memo(({ size }: Props) => {
-  const { history, currentIndex } = Recoil.useRecoilValue(GameState);
+  // const { history, currentIndex, error } = Recoil.useRecoilValue(GameState);
+  const { history, currentIndex, error } = useGameState((state) => state);
+
+  const setError = useSetError();
   const place = usePlaceStone();
 
   const game = history[currentIndex].movement;
@@ -40,11 +48,18 @@ export const ChessBoard = React.memo(({ size }: Props) => {
     const y = e.nativeEvent.locationY;
     const snappedX = Math.floor(x / unitWidth);
     const snappedY = Math.floor(y / unitWidth);
+    // TODO: Add Preview Mode
     place(snappedX, snappedY);
   };
+
   return (
     <React.Fragment>
       <TouchableOpacity onPress={onPress} style={styles.button} />
+      {error && (
+        <TouchableOpacity onPress={() => setError(null)} style={styles.overlay}>
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
+      )}
       {game.map((stone) => {
         const left = stone.x * unitWidth + 1;
         const top = stone.y * unitWidth + 1;
@@ -99,6 +114,21 @@ const styles = StyleSheet.create({
     zIndex: 2,
     width,
     height: width,
+  },
+  overlay: {
+    position: "absolute",
+    width,
+    height: width,
+    zIndex: 4,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  errorText: {
+    fontSize: 20,
+    color: "#fff",
+    backgroundColor: "#000",
+    padding: 5,
   },
   stone: {
     borderRadius: 50,

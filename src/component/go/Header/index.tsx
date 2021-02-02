@@ -6,7 +6,7 @@ import { useCreateNewGameState } from "expo-go/recoil/NewGame";
 import { Chess } from "./Chess";
 
 export const Header = React.memo(() => {
-  const { currentPlayer, history, currentIndex, ko } = useGameState(
+  const { currentPlayer, history, currentIndex } = useGameState(
     (state) => state
   );
   const { player1, player2 } = useCreateNewGameState((state) => state);
@@ -27,7 +27,6 @@ export const Header = React.memo(() => {
       <View style={styles.indicator}>
         <Text>第 {step} 手</Text>
         <Text>VS</Text>
-        {ko && <Text>打劫</Text>}
       </View>
       <View style={styles.white}>
         <View>
@@ -45,6 +44,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 15,
     alignItems: "center",
+    backgroundColor: "#fafafa",
   },
   indicator: {
     alignItems: "center",

@@ -1,8 +1,6 @@
 import React from "react";
 import { Dimensions } from "react-native";
-import { View, Button } from "native-base";
 import { Image } from "react-native";
-import FastImage from "react-native-fast-image";
 
 interface Props {
   size: 9 | 13 | 19;
@@ -10,8 +8,6 @@ interface Props {
 
 export const Board = React.memo(({ size }: Props) => {
   const width = Dimensions.get("screen").width;
-
-  // const unitWidth = width / size;
 
   const img = React.useMemo(() => {
     switch (size) {

@@ -4,13 +4,12 @@ import { CreateNewGameState } from "./NewGame";
 
 export type Player = "white" | "black";
 
-interface State {
+export interface State {
   currentPlayer: Player;
   history: Round[];
   currentIndex: number;
   pass: number;
-  // 打劫
-  ko: boolean;
+  error: string | null;
 }
 
 interface Stone {
@@ -43,7 +42,7 @@ const initialState: State = {
   ],
   currentIndex: 0,
   pass: 0,
-  ko: false,
+  error: null,
 };
 
 interface StoneGroup {
@@ -131,6 +130,29 @@ const getGroup = (
   };
 };
 
+const isInKo = (
+  lastMove: Stone | null,
+  currentMove: Stone,
+  lastCaptured: StoneGroup[],
+  currentCaptured: StoneGroup[]
+) => {
+  return (
+    lastMove &&
+    currentCaptured.some(
+      (_) =>
+        _.stones.length === 1 &&
+        _.stones[0].x === lastMove.x &&
+        _.stones[0].y === lastMove.y
+    ) &&
+    lastCaptured.some(
+      (_) =>
+        _.stones.length === 1 &&
+        _.stones[0].x === currentMove.x &&
+        _.stones[0].y === currentMove.y
+    )
+  );
+};
+
 // Hooks
 export const useGameState = <T>(fn: (state: State) => T): T => {
   const state = Recoil.useRecoilValue(GameState);
@@ -211,6 +233,16 @@ export const useController = () => {
   return { pass, toStart, toEnd, toPrev, toNext, deleteMove };
 };
 
+export const useSetError = () => {
+  const [state, setState] = Recoil.useRecoilState(GameState);
+  return (error: string | null) => {
+    setState({
+      ...state,
+      error,
+    });
+  };
+};
+
 export const useSetPlayer = () => {
   const setState = Recoil.useSetRecoilState(GameState);
   return (player: Player) => setState((state) => ({ ...state, player }));
@@ -218,6 +250,7 @@ export const useSetPlayer = () => {
 
 export const usePlaceStone = () => {
   const [state, setState] = Recoil.useRecoilState(GameState);
+  const setError = useSetError();
   const size = Recoil.useRecoilValue(CreateNewGameState).size;
   return React.useCallback(
     (x: number, y: number) => {
@@ -240,6 +273,7 @@ export const usePlaceStone = () => {
 
       if (isExist) {
         // is occupied
+        setError("不能下在這裡");
         return;
       }
 
@@ -265,30 +299,14 @@ export const usePlaceStone = () => {
         }
       });
 
-      if (
-        lastMove &&
-        captured.some(
-          (_) =>
-            _.stones.length === 1 &&
-            _.stones[0].x === lastMove.x &&
-            _.stones[0].y === lastMove.y
-        ) &&
-        lastCaptured.some(
-          (_) =>
-            _.stones.length === 1 &&
-            _.stones[0].x === stone.x &&
-            _.stones[0].y === stone.y
-        )
-      ) {
-        setState({
-          ...state,
-          ko: true,
-        });
+      if (isInKo(lastMove, stone, lastCaptured, captured)) {
+        setError("打劫");
         return;
       }
 
       if (!captured.length && getGroup(stone, _game, size).liberties === 0) {
         // Suicide
+        setError("禁入點");
         return;
       }
 
@@ -317,7 +335,7 @@ export const usePlaceStone = () => {
         history: [...state.history, newRound],
         currentIndex: state.history.length,
         currentPlayer: state.currentPlayer === "black" ? "white" : "black",
-        ko: false,
+        error: null,
       }));
     },
     [state]
@@ -326,5 +344,5 @@ export const usePlaceStone = () => {
 
 export const useCreateGame = () => {
   const setState = Recoil.useSetRecoilState(GameState);
-  return () => setState(initialState);
+  return (state: State = initialState) => setState((_) => state);
 };
