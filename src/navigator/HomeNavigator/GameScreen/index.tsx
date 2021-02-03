@@ -1,4 +1,4 @@
-import { Container } from "native-base";
+import { Layout } from "@ui-kitten/components";
 import React from "react";
 import { HomeNavigatorScreenProps } from "expo-go/navigator/HomeNavigator";
 import { GoGame, Controller, Header } from "expo-go/component/go";
@@ -34,10 +34,10 @@ export const GameScreen = React.memo(({ navigation }: Props) => {
   }, []);
 
   return (
-    <Container>
+    <Layout style={{ flex: 1 }}>
       <Header />
       <GoGame />
       <Controller />
-    </Container>
+    </Layout>
   );
 });

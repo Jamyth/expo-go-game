@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet } from "react-native";
-import { View, Text } from "native-base";
+import { StyleSheet, View } from "react-native";
+import { Text } from "@ui-kitten/components";
 import { useGameState } from "expo-go/recoil/Go";
 import { useCreateNewGameState } from "expo-go/recoil/NewGame";
 import { Chess } from "./Chess";

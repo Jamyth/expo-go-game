@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet } from "react-native";
-import { View } from "native-base";
+import { StyleSheet, View } from "react-native";
+// import { View } from "@ui-kitten/components";
 
 interface Props {
   isActive: boolean;

@@ -1,10 +1,5 @@
-import {
-  GameState,
-  useGameState,
-  usePlaceStone,
-  useSetError,
-} from "expo-go/recoil/Go";
-import { Text } from "native-base";
+import { useGameState, usePlaceStone, useSetError } from "expo-go/recoil/Go";
+import { Text } from "@ui-kitten/components";
 import React from "react";
 import {
   Dimensions,
@@ -13,7 +8,6 @@ import {
   GestureResponderEvent,
   StyleSheet,
 } from "react-native";
-import Recoil from "recoil";
 
 interface Props {
   size: 9 | 13 | 19;
@@ -22,7 +16,6 @@ interface Props {
 const width = Dimensions.get("screen").width;
 
 export const ChessBoard = React.memo(({ size }: Props) => {
-  // const { history, currentIndex, error } = Recoil.useRecoilValue(GameState);
   const { history, currentIndex, error } = useGameState((state) => state);
 
   const setError = useSetError();

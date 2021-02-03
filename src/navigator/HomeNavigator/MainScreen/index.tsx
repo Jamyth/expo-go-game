@@ -1,20 +1,17 @@
-import {
-  Container,
-  Fab,
-  Spinner,
-  View,
-  Text,
-  List,
-  Content,
-  ListItem as Li,
-} from "native-base";
+import { Layout, Spinner, Text, Button } from "@ui-kitten/components";
 import React from "react";
 import { HomeNavigatorScreenProps } from "expo-go/navigator/HomeNavigator";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ListItem } from "./ListItem";
 import { useGameListAction, useGameListState } from "expo-go/recoil/GameList";
-import { AppState, AppStateStatus } from "react-native";
+import {
+  AppState,
+  AppStateStatus,
+  StyleSheet,
+  View,
+  FlatList,
+} from "react-native";
 import { GameItem } from "expo-go/type/interface";
 
 interface Props extends HomeNavigatorScreenProps<"Home.Main"> {}
@@ -61,7 +58,7 @@ export const MainScreen = React.memo(({ navigation }: Props) => {
   }, [list]);
 
   return (
-    <Container>
+    <Layout style={styles.container}>
       {loading && (
         <View style={{ justifyContent: "center" }}>
           <Spinner />
@@ -72,18 +69,31 @@ export const MainScreen = React.memo(({ navigation }: Props) => {
           <Text>找不到對局列表</Text>
         </View>
       )}
-      <Content>
-        <List>
-          {list.map((_) => (
-            <Li key={_.id}>
-              <ListItem item={_} />
-            </Li>
-          ))}
-        </List>
-      </Content>
-      <Fab active position="bottomRight" onPress={navigateToCreate}>
-        <MaterialIcons name="create" size={24} />
-      </Fab>
-    </Container>
+      <FlatList data={list} renderItem={(_) => <ListItem item={_.item} />} />
+      <Button
+        style={styles.overflowButton}
+        onPress={navigateToCreate}
+        accessoryLeft={() => (
+          <MaterialIcons name="create" size={24} color="white" />
+        )}
+      />
+    </Layout>
   );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 15,
+    position: "relative",
+  },
+  overflowButton: {
+    position: "absolute",
+    zIndex: 2,
+    bottom: 20,
+    right: 20,
+    width: 65,
+    height: 65,
+    borderRadius: 50,
+  },
 });

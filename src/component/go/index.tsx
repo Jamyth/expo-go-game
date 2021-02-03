@@ -1,8 +1,8 @@
 import React from "react";
 import { Board } from "./Board";
 import { ChessBoard } from "./ChessBoard";
-import { View } from "native-base";
-import { Dimensions } from "react-native";
+// import { View } from "@ui-kitten/components";
+import { Dimensions, View } from "react-native";
 import { Controller } from "./Controller";
 import { Header } from "./Header";
 import { useCreateNewGameState } from "expo-go/recoil/NewGame";

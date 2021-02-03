@@ -1,12 +1,18 @@
 import React from "react";
 import type { GameItem } from "expo-go/type/interface";
-import { View, Text, Button, ActionSheet } from "native-base";
-import { StyleSheet } from "react-native";
+import {
+  Button,
+  OverflowMenu,
+  MenuItem,
+  IndexPath,
+} from "@ui-kitten/components";
+import { StyleSheet, View } from "react-native";
 import { useCreateGame } from "expo-go/recoil/Go";
 import { useSetNewGameState } from "expo-go/recoil/NewGame";
 import { useNavigation } from "@react-navigation/native";
-import { useGameListAction, useGameListState } from "expo-go/recoil/GameList";
+import { useGameListAction } from "expo-go/recoil/GameList";
 import { Feather } from "@expo/vector-icons";
+import { useBool } from "expo-go/util/useBool";
 
 interface Props {
   item: GameItem;
@@ -22,6 +28,7 @@ export const ListItem = React.memo(({ item }: Props) => {
   const setGameConfig = useSetNewGameState();
   const navigation = useNavigation();
   const { deleteGame } = useGameListAction();
+  const { show, on, off } = useBool(false);
 
   const onPress = () => {
     const { game, ...config } = item;
@@ -30,18 +37,8 @@ export const ListItem = React.memo(({ item }: Props) => {
     navigation.navigate("Home.Game");
   };
 
-  const onActionSheetOpen = () => {
-    ActionSheet.show(
-      {
-        options: BUTTONS,
-        cancelButtonIndex: 1,
-        destructiveButtonIndex: 0,
-      },
-      onActionClick
-    );
-  };
-
-  const onActionClick = async (index: number) => {
+  const onActionClick = async (indexPath: IndexPath) => {
+    const index = indexPath.row;
     if (index === 0) {
       deleteGame(item.id);
     }
@@ -49,32 +46,44 @@ export const ListItem = React.memo(({ item }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Button transparent style={styles.main} onPress={onPress}>
-        <View>
-          <Text>{item.matchName}</Text>
-        </View>
+      <Button appearance="ghost" style={styles.main} onPress={onPress}>
+        {item.matchName}
       </Button>
-      <Button transparent style={styles.action} onPress={onActionSheetOpen}>
-        <View>
-          <Feather name="more-horizontal" style={styles.icon} />
-        </View>
-      </Button>
+      <OverflowMenu
+        visible={show}
+        onBackdropPress={off}
+        onSelect={onActionClick}
+        anchor={() => (
+          <Button
+            appearance="ghost"
+            style={styles.action}
+            accessoryLeft={() => (
+              <Feather name="more-horizontal" style={styles.icon} />
+            )}
+            onPress={on}
+          />
+        )}
+      >
+        <MenuItem title="Delete" />
+      </OverflowMenu>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
   container: {
-    height: 40,
+    height: 60,
     width: "100%",
     flexDirection: "row",
-    paddingHorizontal: 25,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
   },
   main: {
     flex: 1,
     height: "100%",
   },
   action: {
+    width: "20%",
     height: "100%",
   },
   icon: {

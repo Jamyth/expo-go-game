@@ -1,10 +1,11 @@
 import React from "react";
 import { useController } from "expo-go/recoil/Go";
-import { Button, View } from "native-base";
+import { Button } from "@ui-kitten/components";
 import { StyleSheet } from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import Recoil from "recoil";
 import { GameState } from "expo-go/recoil/Go";
+import { View } from "react-native";
 
 export const Controller = React.memo(() => {
   const { history, currentIndex } = Recoil.useRecoilValue(GameState);
@@ -13,71 +14,73 @@ export const Controller = React.memo(() => {
   return (
     <View style={styles.container}>
       <Button
+        appearance="ghost"
         onPress={toStart}
-        style={{ flex: 1 }}
+        style={{ flex: 1, borderRadius: 0 }}
         disabled={currentIndex === 0}
-        full
-        transparent
-      >
-        <AntDesign
-          name="stepbackward"
-          style={[styles.button, currentIndex === 0 ? styles.disabled : {}]}
-        />
-      </Button>
+        accessoryLeft={() => (
+          <AntDesign
+            name="stepbackward"
+            style={[styles.button, currentIndex === 0 ? styles.disabled : {}]}
+          />
+        )}
+      />
+
       <Button
-        full
-        transparent
+        appearance="ghost"
         onPress={toPrev}
-        style={{ flex: 1 }}
+        style={{ flex: 1, borderRadius: 0 }}
         disabled={currentIndex === 0}
-      >
-        <AntDesign
-          name="caretleft"
-          style={[styles.button, currentIndex === 0 ? styles.disabled : {}]}
-        />
-      </Button>
+        accessoryLeft={() => (
+          <AntDesign
+            name="caretleft"
+            style={[styles.button, currentIndex === 0 ? styles.disabled : {}]}
+          />
+        )}
+      />
       <Button
-        full
-        transparent
+        appearance="ghost"
         onPress={toNext}
-        style={{ flex: 1 }}
+        style={{ flex: 1, borderRadius: 0 }}
         disabled={currentIndex === length - 1}
-      >
-        <AntDesign
-          name="caretright"
-          style={[
-            styles.button,
-            currentIndex === length - 1 ? styles.disabled : {},
-          ]}
-        />
-      </Button>
+        accessoryLeft={() => (
+          <AntDesign
+            name="caretright"
+            style={[
+              styles.button,
+              currentIndex === length - 1 ? styles.disabled : {},
+            ]}
+          />
+        )}
+      />
       <Button
-        full
-        transparent
+        appearance="ghost"
         onPress={toEnd}
-        style={{ flex: 1 }}
+        style={{ flex: 1, borderRadius: 0 }}
         disabled={currentIndex === length - 1}
-      >
-        <AntDesign
-          name="stepforward"
-          style={[
-            styles.button,
-            currentIndex === length - 1 ? styles.disabled : {},
-          ]}
-        />
-      </Button>
+        accessoryLeft={() => (
+          <AntDesign
+            name="stepforward"
+            style={[
+              styles.button,
+              currentIndex === length - 1 ? styles.disabled : {},
+            ]}
+          />
+        )}
+      />
+
       <Button
-        style={{ flex: 1 }}
-        full
-        transparent
+        appearance="ghost"
+        style={{ flex: 1, borderRadius: 0 }}
         onPress={deleteMove}
         disabled={length === 1}
-      >
-        <Feather
-          name="delete"
-          style={[styles.button, length === 1 ? styles.disabled : {}]}
-        />
-      </Button>
+        accessoryLeft={() => (
+          <Feather
+            name="delete"
+            style={[styles.button, length === 1 ? styles.disabled : {}]}
+          />
+        )}
+      />
     </View>
   );
 });

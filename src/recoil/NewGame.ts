@@ -1,12 +1,12 @@
 import Recoil from "recoil";
 import { DateUtil } from "expo-go/util/DateUtil";
-
 export interface NewGameState {
   id: string;
   matchName: string;
   size: 9 | 13 | 19;
   player1: Player;
   player2: Player;
+  handicap: number;
 }
 
 interface Player {
@@ -25,6 +25,7 @@ const getInitialState = (): NewGameState => {
     player2: {
       name: "Player 2",
     },
+    handicap: 0,
   };
 };
 
@@ -82,6 +83,12 @@ export const useCreateNewGameAction = () => {
       matchName,
     });
   };
+  const updateHandicap = (handicap: number) => {
+    setState({
+      ...state,
+      handicap,
+    });
+  };
 
   return {
     updateSize,
@@ -89,5 +96,6 @@ export const useCreateNewGameAction = () => {
     updatePlayer2,
     updateMatchName,
     resetCreateNewGameState,
+    updateHandicap,
   };
 };

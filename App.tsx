@@ -5,17 +5,16 @@ import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import { Ionicons } from "@expo/vector-icons";
 import Recoil from "recoil";
-import { Root } from "native-base";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "react-native";
+import * as eva from "@eva-design/eva";
+import { ApplicationProvider } from "@ui-kitten/components";
 
 export default function App() {
   const [isReady, setIsReady] = React.useState(false);
 
   const loadFont = async () => {
     await Font.loadAsync({
-      Roboto: require("native-base/Fonts/Roboto.ttf"),
-      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
       ...Ionicons.font,
     });
   };
@@ -41,10 +40,10 @@ export default function App() {
   return (
     <Recoil.RecoilRoot>
       <SafeAreaProvider>
-        <Root>
-          <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="dark-content" />
+        <ApplicationProvider {...eva} theme={eva.light}>
           <HomeNavigator />
-        </Root>
+        </ApplicationProvider>
       </SafeAreaProvider>
     </Recoil.RecoilRoot>
   );
