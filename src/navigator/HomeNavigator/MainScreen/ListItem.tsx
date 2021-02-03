@@ -9,7 +9,7 @@ import { useGameListAction, useGameListState } from "expo-go/recoil/GameList";
 import { Feather } from "@expo/vector-icons";
 
 interface Props {
-  id: string;
+  item: GameItem;
 }
 
 const BUTTONS = [
@@ -17,18 +17,13 @@ const BUTTONS = [
   { text: "Cancel", icon: "close", iconColor: "#25de5b" },
 ];
 
-export const ListItem = React.memo(({ id }: Props) => {
+export const ListItem = React.memo(({ item }: Props) => {
   const enterGame = useCreateGame();
-  const { list } = useGameListState();
   const setGameConfig = useSetNewGameState();
   const navigation = useNavigation();
   const { deleteGame } = useGameListAction();
 
   const onPress = () => {
-    const item = list.find((_) => _.id === id);
-    if (!item) {
-      return;
-    }
     const { game, ...config } = item;
     enterGame({ ...game, currentIndex: game.history.length - 1 });
     setGameConfig((_) => config);
@@ -48,7 +43,7 @@ export const ListItem = React.memo(({ id }: Props) => {
 
   const onActionClick = async (index: number) => {
     if (index === 0) {
-      deleteGame(id);
+      deleteGame(item.id);
     }
   };
 
@@ -56,7 +51,7 @@ export const ListItem = React.memo(({ id }: Props) => {
     <View style={styles.container}>
       <Button transparent style={styles.main} onPress={onPress}>
         <View>
-          <Text>{id}</Text>
+          <Text>{item.matchName}</Text>
         </View>
       </Button>
       <Button transparent style={styles.action} onPress={onActionSheetOpen}>

@@ -5,6 +5,7 @@ import { GoGame, Controller, Header } from "expo-go/component/go";
 import { useCreateNewGameState } from "expo-go/recoil/NewGame";
 import { useGameListAction } from "expo-go/recoil/GameList";
 import { useGameState } from "expo-go/recoil/Go";
+import { GameItem } from "expo-go/type/interface";
 
 interface Props extends HomeNavigatorScreenProps<"Home.Main"> {}
 
@@ -13,27 +14,24 @@ export const GameScreen = React.memo(({ navigation }: Props) => {
   const { saveGame } = useGameListAction();
   const game = useGameState((state) => state);
   const config = useCreateNewGameState((state) => state);
+  const ref = React.useRef<GameItem>({
+    ...config,
+    game,
+  });
+  ref.current = {
+    ...config,
+    game,
+  };
 
   React.useEffect(() => {
     navigation.setOptions({
       title: matchName,
     });
+
+    return () => {
+      saveGame(ref.current);
+    };
   }, []);
-
-  React.useEffect(() => {
-    navigation.addListener("beforeRemove", async (e) => {
-      e.preventDefault();
-      saveGame({
-        ...config,
-        game,
-      });
-      navigation.dispatch(e.data.action);
-    });
-  }, [navigation]);
-
-  React.useEffect(() => {
-    console.log("update");
-  }, [game, config]);
 
   return (
     <Container>

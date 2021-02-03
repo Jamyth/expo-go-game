@@ -14,14 +14,19 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ListItem } from "./ListItem";
 import { useGameListAction, useGameListState } from "expo-go/recoil/GameList";
+import { AppState, AppStateStatus } from "react-native";
+import { GameItem } from "expo-go/type/interface";
 
 interface Props extends HomeNavigatorScreenProps<"Home.Main"> {}
 
 export const MainScreen = React.memo(({ navigation }: Props) => {
   const [loading, setLoading] = React.useState(false);
-  const update = React.useReducer((s) => s + 1, [])[1];
   const { list } = useGameListState();
   const { setList } = useGameListAction();
+
+  const ref = React.useRef<GameItem[]>(list);
+  ref.current = list;
+
   const navigateToCreate = () => {
     navigation.navigate("Home.Create");
   };
@@ -38,15 +43,22 @@ export const MainScreen = React.memo(({ navigation }: Props) => {
     }
   };
 
-  const saveToStorage = async () => {
-    console.log(list.length);
-    await AsyncStorage.setItem("match_list", JSON.stringify(list));
+  const saveToStorage = async (state: AppStateStatus) => {
+    if (state === "inactive") {
+      await AsyncStorage.setItem("match_list", JSON.stringify(list));
+    }
   };
 
   React.useEffect(() => {
     getListFromStorage();
-    navigation.addListener("focus", () => update());
   }, []);
+
+  React.useEffect(() => {
+    AppState.addEventListener("change", saveToStorage);
+    return () => {
+      AppState.removeEventListener("change", saveToStorage);
+    };
+  }, [list]);
 
   return (
     <Container>
@@ -64,7 +76,7 @@ export const MainScreen = React.memo(({ navigation }: Props) => {
         <List>
           {list.map((_) => (
             <Li key={_.id}>
-              <ListItem id={_.id} />
+              <ListItem item={_} />
             </Li>
           ))}
         </List>

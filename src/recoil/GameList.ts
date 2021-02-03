@@ -2,12 +2,10 @@ import Recoil from "recoil";
 import type { GameItem } from "expo-go/type/interface";
 
 interface State {
-  isLoading: boolean;
   list: GameItem[];
 }
 
 const initialState: State = {
-  isLoading: true,
   list: [],
 };
 
@@ -26,10 +24,7 @@ export const useGameListAction = () => {
   const [state, setState] = Recoil.useRecoilState(GameListState);
 
   const setList = (list: GameItem[]) => {
-    setState((state) => ({
-      ...state,
-      list: list.slice(0),
-    }));
+    setState({ list: list.slice(0) });
   };
 
   const saveGame = (gameItem: GameItem) => {
