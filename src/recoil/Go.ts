@@ -452,7 +452,7 @@ export const useCreateGame = () => {
       const _state: State = {
         ...initialState,
         history: [round],
-        currentPlayer: "white",
+        currentPlayer: handicap !== 0 ? "white" : "black",
       };
       setState((_) => _state);
       return;
