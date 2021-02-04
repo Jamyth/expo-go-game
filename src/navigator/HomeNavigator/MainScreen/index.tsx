@@ -59,17 +59,17 @@ export const MainScreen = React.memo(({ navigation }: Props) => {
 
   return (
     <Layout style={styles.container}>
-      {loading && (
-        <View style={{ justifyContent: "center" }}>
-          <Spinner />
-        </View>
-      )}
       {!list.length && (
         <View style={{ alignItems: "center", paddingVertical: 25 }}>
           <Text>找不到對局列表</Text>
         </View>
       )}
-      <FlatList data={list} renderItem={(_) => <ListItem item={_.item} />} />
+      <FlatList
+        refreshing={loading}
+        onRefresh={getListFromStorage}
+        data={list}
+        renderItem={(_) => <ListItem item={_.item} />}
+      />
       <Button
         style={styles.overflowButton}
         onPress={navigateToCreate}

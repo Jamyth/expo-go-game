@@ -25,9 +25,9 @@ export const Header = React.memo(({ gameStatus }: Props) => {
       return "";
     }
     const blackTerritory =
-      gameStatus.blackSpace - whiteTaken - gameStatus.whiteTaken - (komi || 0);
+      gameStatus.blackSpace - gameStatus.whiteTaken - whiteTaken - (komi || 0);
     const whiteTerritory =
-      gameStatus.whiteSpace - blackTaken - gameStatus.blackTaken;
+      gameStatus.whiteSpace - gameStatus.blackTaken - blackTaken;
     return `${blackTerritory > whiteTerritory ? "黑棋" : "白棋"}領先${Math.abs(
       blackTerritory - whiteTerritory
     )}子`;

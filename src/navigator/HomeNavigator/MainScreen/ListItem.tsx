@@ -5,8 +5,9 @@ import {
   OverflowMenu,
   MenuItem,
   IndexPath,
+  Text,
 } from "@ui-kitten/components";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Alert } from "react-native";
 import { useCreateGame } from "expo-go/recoil/Go";
 import { useSetNewGameState } from "expo-go/recoil/NewGame";
 import { useNavigation } from "@react-navigation/native";
@@ -39,8 +40,27 @@ export const ListItem = React.memo(({ item }: Props) => {
 
   const onActionClick = async (indexPath: IndexPath) => {
     const index = indexPath.row;
+    off();
     if (index === 0) {
-      deleteGame(item.id);
+      const { game, ...config } = item;
+      enterGame({ ...game, currentIndex: game.history.length - 1 });
+      setGameConfig((_) => config);
+      navigation.navigate("Home.Edit");
+    }
+    if (index === 1) {
+      Alert.alert(
+        "你確定要刪除對局嗎？",
+        undefined,
+        [
+          {
+            text: "刪除",
+            style: "destructive",
+            onPress: () => deleteGame(item.id),
+          },
+          { text: "取消" },
+        ],
+        { cancelable: false }
+      );
     }
   };
 
@@ -64,7 +84,14 @@ export const ListItem = React.memo(({ item }: Props) => {
           />
         )}
       >
-        <MenuItem title="Delete" />
+        <MenuItem
+          title={() => <Text style={[styles.menuItem]}>編輯資料</Text>}
+        />
+        <MenuItem
+          title={() => (
+            <Text style={[styles.menuItem, styles.deleteButton]}>刪除對局</Text>
+          )}
+        />
       </OverflowMenu>
     </View>
   );
@@ -88,5 +115,11 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 20,
+  },
+  menuItem: {
+    fontSize: 18,
+  },
+  deleteButton: {
+    color: "red",
   },
 });
