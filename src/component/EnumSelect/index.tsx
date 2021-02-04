@@ -38,14 +38,14 @@ export class EnumSelect<
   };
 
   render() {
-    const { label, translator, disabled, list } = this.props;
+    const { label, translator, disabled, list, value } = this.props;
     const { selected } = this.state;
     return (
       <Select
         label={label}
         selectedIndex={selected}
         onSelect={this.onSelect}
-        value={translator(list[selected.row])}
+        value={translator(value)}
         disabled={disabled}
       >
         {list.map((item, index) => (

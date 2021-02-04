@@ -7,6 +7,7 @@ export interface NewGameState {
   player1: Player;
   player2: Player;
   handicap: number;
+  komi: number;
 }
 
 interface Player {
@@ -25,6 +26,7 @@ const getInitialState = (): NewGameState => {
       name: "Player 2",
     },
     handicap: 0,
+    komi: 0,
   };
 };
 
@@ -88,6 +90,12 @@ export const useCreateNewGameAction = () => {
       handicap,
     });
   };
+  const updateKomi = (komi: number) => {
+    setState({
+      ...state,
+      komi,
+    });
+  };
 
   return {
     updateSize,
@@ -96,5 +104,6 @@ export const useCreateNewGameAction = () => {
     updateMatchName,
     resetCreateNewGameState,
     updateHandicap,
+    updateKomi,
   };
 };
