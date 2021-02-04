@@ -13,32 +13,38 @@ interface Props<Enum extends string | number | boolean>
   extends BaseProps<Enum>,
     ControlledFormValue<Enum> {}
 
-export const EnumSelect = React.memo(
-  <Enum extends string | number | boolean>({
-    list,
-    translator,
-    disabled,
-    value,
-    onChange,
-    label,
-  }: Props<Enum>) => {
-    const [selected, setSelected] = React.useState(
-      new IndexPath(list.indexOf(value))
-    );
+interface State {
+  selected: IndexPath;
+}
 
-    const onSelect = (index: IndexPath | IndexPath[]) => {
-      if (Array.isArray(index)) {
-        return;
-      }
-      setSelected(index);
-      onChange(list[index.row]);
+export class EnumSelect<
+  Enum extends string | boolean | number
+> extends React.PureComponent<Props<Enum>, State> {
+  constructor(props: Props<Enum>) {
+    super(props);
+    const { list, value } = props;
+    this.state = {
+      selected: new IndexPath(list.indexOf(value)),
     };
+  }
 
+  onSelect = (index: IndexPath | IndexPath[]) => {
+    const { onChange, list } = this.props;
+    if (Array.isArray(index)) {
+      return;
+    }
+    this.setState({ selected: index });
+    onChange(list[index.row]);
+  };
+
+  render() {
+    const { label, translator, disabled, list } = this.props;
+    const { selected } = this.state;
     return (
       <Select
         label={label}
         selectedIndex={selected}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
         value={translator(list[selected.row])}
         disabled={disabled}
       >
@@ -48,4 +54,4 @@ export const EnumSelect = React.memo(
       </Select>
     );
   }
-);
+}

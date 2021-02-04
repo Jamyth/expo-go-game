@@ -1,6 +1,6 @@
 import Recoil from "recoil";
 import React from "react";
-import { CreateNewGameState } from "./NewGame";
+import { CreateNewGameState, useCreateNewGameState } from "./NewGame";
 
 export type Player = "white" | "black";
 
@@ -12,11 +12,11 @@ export interface State {
   error: string | null;
 }
 
-interface Stone {
+export interface Stone {
   x: number;
   y: number;
   color: Player;
-  step: number;
+  step: number | null;
 }
 
 interface Round {
@@ -43,6 +43,102 @@ const initialState: State = {
   currentIndex: 0,
   pass: 0,
   error: null,
+};
+
+const getHandicap = (handicap: number, size: 9 | 13 | 19): Stone[] => {
+  const _stone: Pick<Stone, "color" | "step"> = {
+    color: "black",
+    step: null,
+  };
+  switch (handicap) {
+    case 1:
+      return [{ ..._stone, x: size - 4, y: 3 }];
+    case 2:
+      return [
+        ...getHandicap(1, size),
+        {
+          ..._stone,
+          x: 3,
+          y: size - 4,
+        },
+      ];
+    case 3:
+      return [
+        ...getHandicap(2, size),
+        {
+          ..._stone,
+          x: 3,
+          y: 3,
+        },
+      ];
+    case 4:
+      return [
+        ...getHandicap(3, size),
+        {
+          ..._stone,
+          x: size - 4,
+          y: size - 4,
+        },
+      ];
+    case 5:
+      return [
+        ...getHandicap(4, size),
+        {
+          ..._stone,
+          x: Math.floor(size / 2),
+          y: Math.floor(size / 2),
+        },
+      ];
+    case 6:
+      return [
+        ...getHandicap(4, size),
+        {
+          ..._stone,
+          x: 3,
+          y: Math.floor(size / 2),
+        },
+        {
+          ..._stone,
+          x: size - 4,
+          y: Math.floor(size / 2),
+        },
+      ];
+    case 7:
+      return [
+        ...getHandicap(6, size),
+        {
+          ..._stone,
+          x: Math.floor(size / 2),
+          y: Math.floor(size / 2),
+        },
+      ];
+    case 8:
+      return [
+        ...getHandicap(6, size),
+        {
+          ..._stone,
+          x: Math.floor(size / 2),
+          y: 3,
+        },
+        {
+          ..._stone,
+          x: Math.floor(size / 2),
+          y: size - 4,
+        },
+      ];
+    case 9:
+      return [
+        ...getHandicap(8, size),
+        {
+          ..._stone,
+          x: Math.floor(size / 2),
+          y: Math.floor(size / 2),
+        },
+      ];
+    case 0:
+    default:
+      return [];
+  }
 };
 
 interface StoneGroup {
@@ -344,5 +440,23 @@ export const usePlaceStone = () => {
 
 export const useCreateGame = () => {
   const setState = Recoil.useSetRecoilState(GameState);
-  return (state: State = initialState) => setState((_) => state);
+  const handicap = useCreateNewGameState((state) => state.handicap);
+  const size = useCreateNewGameState((state) => state.size);
+  return (state?: State) => {
+    if (!state) {
+      const movement = getHandicap(handicap, size);
+      const round: Round = {
+        ...initialState.history[0],
+        movement,
+      };
+      const _state: State = {
+        ...initialState,
+        history: [round],
+        currentPlayer: "white",
+      };
+      setState((_) => _state);
+      return;
+    }
+    setState((_) => state);
+  };
 };

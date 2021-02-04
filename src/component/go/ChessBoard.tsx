@@ -11,11 +11,15 @@ import {
 
 interface Props {
   size: 9 | 13 | 19;
+  territory?: {
+    x: number;
+    y: number;
+  }[];
 }
 
 const width = Dimensions.get("screen").width;
 
-export const ChessBoard = React.memo(({ size }: Props) => {
+export const ChessBoard = React.memo(({ size, territory }: Props) => {
   const { history, currentIndex, error } = useGameState((state) => state);
 
   const setError = useSetError();
@@ -53,7 +57,27 @@ export const ChessBoard = React.memo(({ size }: Props) => {
           <Text style={styles.errorText}>{error}</Text>
         </TouchableOpacity>
       )}
-      {game.map((stone) => {
+      {territory?.map((_) => {
+        const width = unitWidth * 0.5;
+        const left = _.x * unitWidth + width / 2;
+        const top = _.y * unitWidth + width / 2;
+        const backgroundColor = "rgba(255,255,255,0.9)";
+
+        return (
+          <View
+            key={`${top}-${(_.x + 1) * (_.y + 1)}`}
+            style={{
+              left,
+              top,
+              width,
+              backgroundColor,
+              position: "absolute",
+              height: width,
+            }}
+          />
+        );
+      })}
+      {game.map((stone, i) => {
         const left = stone.x * unitWidth + 1;
         const top = stone.y * unitWidth + 1;
         const width = unitWidth - 2;
@@ -71,7 +95,7 @@ export const ChessBoard = React.memo(({ size }: Props) => {
                 backgroundColor,
               },
             ]}
-            key={stone.step}
+            key={stone.step || `handicap-${(stone.x + 1) * (stone.y + 1) + i}`}
           >
             <View style={styles.stoneContainer}>
               {stone.step === currentIndex && (
@@ -85,14 +109,16 @@ export const ChessBoard = React.memo(({ size }: Props) => {
                   ]}
                 />
               )}
-              <Text
-                style={{
-                  color: stone.color === "black" ? "#fff" : "#000",
-                  fontSize,
-                }}
-              >
-                {stone.step}
-              </Text>
+              {stone.step && (
+                <Text
+                  style={{
+                    color: stone.color === "black" ? "#fff" : "#000",
+                    fontSize,
+                  }}
+                >
+                  {stone.step}
+                </Text>
+              )}
             </View>
           </View>
         );

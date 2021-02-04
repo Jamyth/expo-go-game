@@ -7,7 +7,14 @@ import { Controller } from "./Controller";
 import { Header } from "./Header";
 import { useCreateNewGameState } from "expo-go/recoil/NewGame";
 
-export const GoGame = React.memo(() => {
+interface Props {
+  territory?: {
+    x: number;
+    y: number;
+  }[];
+}
+
+export const GoGame = React.memo(({ territory }: Props) => {
   const size = useCreateNewGameState((state) => state.size);
   const width = Dimensions.get("screen").width;
 
@@ -21,7 +28,7 @@ export const GoGame = React.memo(() => {
       }}
     >
       <Board size={size} />
-      <ChessBoard size={size} />
+      <ChessBoard size={size} territory={territory} />
     </View>
   );
 });

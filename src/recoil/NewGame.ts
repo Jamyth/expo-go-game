@@ -14,7 +14,6 @@ interface Player {
 }
 
 const getInitialState = (): NewGameState => {
-  console.log("Updated");
   return {
     id: `${Date.now()}`,
     matchName: `Match on ${DateUtil.format(new Date())}`,
