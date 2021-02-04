@@ -4,8 +4,13 @@ import { Text } from "@ui-kitten/components";
 import { useGameState } from "expo-go/recoil/Go";
 import { useCreateNewGameState } from "expo-go/recoil/NewGame";
 import { Chess } from "./Chess";
+import { GameStatus } from "expo-go/util/GameUtil";
 
-export const Header = React.memo(() => {
+interface Props {
+  gameStatus?: GameStatus;
+}
+
+export const Header = React.memo(({ gameStatus }: Props) => {
   const { currentPlayer, history, currentIndex } = useGameState(
     (state) => state
   );
@@ -14,6 +19,19 @@ export const Header = React.memo(() => {
   const { blackTaken, whiteTaken, step } = history[currentIndex];
 
   const isBlack = currentPlayer === "black";
+
+  const getGameStatus = () => {
+    if (!gameStatus) {
+      return "";
+    }
+    const blackTerritory =
+      gameStatus.blackSpace - whiteTaken - gameStatus.whiteTaken;
+    const whiteTerritory =
+      gameStatus.whiteSpace - blackTaken - gameStatus.blackTaken;
+    return `${blackTerritory > whiteTerritory ? "黑棋" : "白棋"}領先${Math.abs(
+      blackTerritory - whiteTerritory
+    )}子`;
+  };
 
   return (
     <View style={styles.container}>
@@ -26,7 +44,8 @@ export const Header = React.memo(() => {
       </View>
       <View style={styles.indicator}>
         <Text>第 {step} 手</Text>
-        <Text>VS</Text>
+        {/* <Text>VS</Text> */}
+        <Text>{getGameStatus()}</Text>
       </View>
       <View style={styles.white}>
         <View>

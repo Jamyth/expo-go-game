@@ -6,12 +6,10 @@ import { Dimensions, View } from "react-native";
 import { Controller } from "./Controller";
 import { Header } from "./Header";
 import { useCreateNewGameState } from "expo-go/recoil/NewGame";
+import { Territory } from "expo-go/util/GameUtil";
 
 interface Props {
-  territory?: {
-    x: number;
-    y: number;
-  }[];
+  territory?: Territory[][];
 }
 
 export const GoGame = React.memo(({ territory }: Props) => {

@@ -10,7 +10,7 @@ import { useGameListAction } from "expo-go/recoil/GameList";
 import { useGameState } from "expo-go/recoil/Go";
 import { GameItem } from "expo-go/type/interface";
 import { useBool } from "expo-go/util/useBool";
-import { GameUtil } from "expo-go/util/GameUtil";
+import { GameStatus, GameUtil, Territory } from "expo-go/util/GameUtil";
 
 interface Props extends HomeNavigatorScreenProps<"Home.Main"> {}
 
@@ -21,13 +21,12 @@ export const GameScreen = React.memo(({ navigation }: Props) => {
   const game = useGameState((state) => state);
   const config = useCreateNewGameState((state) => state);
 
-  const [emptySpace, setEmptySpace] = React.useState<
-    | {
-        x: number;
-        y: number;
-      }[]
-    | undefined
-  >(undefined);
+  const [territory, setTerritory] = React.useState<Territory[][] | undefined>(
+    undefined
+  );
+  const [gameStatus, setGameStatus] = React.useState<GameStatus | undefined>(
+    undefined
+  );
 
   const { show, toggle } = useBool(false);
 
@@ -47,26 +46,28 @@ export const GameScreen = React.memo(({ navigation }: Props) => {
 
     return () => {
       saveGame(ref.current);
-      resetCreateNewGameState();
+      // resetCreateNewGameState();
     };
   }, []);
 
   React.useEffect(() => {
     if (show) {
-      const spaces = GameUtil.getEmptySpace(
+      const { territory, ...gameStatus } = GameUtil.getTerritory(
         config.size,
         game.history[game.currentIndex].movement
       );
-      setEmptySpace(spaces);
+      setGameStatus(gameStatus);
+      setTerritory(territory);
     } else {
-      setEmptySpace(undefined);
+      setTerritory(undefined);
+      setGameStatus(undefined);
     }
   }, [show, game, config]);
 
   return (
     <Layout style={{ flex: 1 }}>
-      <Header />
-      <GoGame territory={emptySpace} />
+      <Header gameStatus={gameStatus} />
+      <GoGame territory={territory} />
       <Controller toggleTerritory={toggle} />
     </Layout>
   );

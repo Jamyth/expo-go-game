@@ -8,13 +8,11 @@ import {
   GestureResponderEvent,
   StyleSheet,
 } from "react-native";
+import { Territory } from "expo-go/util/GameUtil";
 
 interface Props {
   size: 9 | 13 | 19;
-  territory?: {
-    x: number;
-    y: number;
-  }[];
+  territory?: Territory[][];
 }
 
 const width = Dimensions.get("screen").width;
@@ -57,25 +55,28 @@ export const ChessBoard = React.memo(({ size, territory }: Props) => {
           <Text style={styles.errorText}>{error}</Text>
         </TouchableOpacity>
       )}
-      {territory?.map((_) => {
-        const width = unitWidth * 0.5;
-        const left = _.x * unitWidth + width / 2;
-        const top = _.y * unitWidth + width / 2;
-        const backgroundColor = "rgba(255,255,255,0.9)";
+      {territory?.map((group) => {
+        return group.map((_) => {
+          const width = unitWidth * 0.5;
+          const left = _.x * unitWidth + width / 2;
+          const top = _.y * unitWidth + width / 2;
+          const backgroundColor = _.color;
 
-        return (
-          <View
-            key={`${top}-${(_.x + 1) * (_.y + 1)}`}
-            style={{
-              left,
-              top,
-              width,
-              backgroundColor,
-              position: "absolute",
-              height: width,
-            }}
-          />
-        );
+          return (
+            <View
+              key={`${top}-${(_.x + 1) * (_.y + 1)}`}
+              style={{
+                left,
+                top,
+                width,
+                backgroundColor,
+                position: "absolute",
+                height: width,
+                zIndex: 5,
+              }}
+            ></View>
+          );
+        });
       })}
       {game.map((stone, i) => {
         const left = stone.x * unitWidth + 1;
