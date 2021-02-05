@@ -4,6 +4,29 @@ Sorry if you are searching for the Expo Client, this is not the repository you a
 
 This Application intents to provide a simplest Go Board Game (碁 / 圍棋) recorder.
 
+## **How To Install**
+
+As is it really expensive for uploading a game on Android and IOS platform, this game is only available to Expo user.
+
+```bash
+# Clone the repository
+$ git clone https://github.com/Jamyth/expo-go-game
+
+# Yarn install
+$ yarn
+
+# Login to your Expo account
+
+# Use Expo build tool
+$ expo build:ios
+
+# Select Simulator
+$ > Choose the build type you would like: simulator
+
+# Wait for the build
+# Then in the expo-client, you will see the application, then please enjoy the app
+```
+
 ## **Features**
 
 - Provide 9/ 13/ 19 size of boards
