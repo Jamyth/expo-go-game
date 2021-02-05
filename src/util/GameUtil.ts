@@ -117,24 +117,57 @@ function getSpaceByGroup(size: Size, currentBoard: Stone[]): EmptySpace[][] {
     const space = spaces.pop()!;
     const group = getGroup(space, spaces);
     // Check is public
-    const left = getSideBorder(space.x, space.y, currentBoard, size, "left");
-    const top = getSideBorder(space.x, space.y, currentBoard, size, "top");
-    const right = getSideBorder(space.x, space.y, currentBoard, size, "right");
+    const left = getSideBorder(
+      space.x,
+      space.y,
+      currentBoard,
+      size,
+      "left",
+      true
+    );
+    const top = getSideBorder(
+      space.x,
+      space.y,
+      currentBoard,
+      size,
+      "top",
+      true
+    );
+    const right = getSideBorder(
+      space.x,
+      space.y,
+      currentBoard,
+      size,
+      "right",
+      true
+    );
     const bottom = getSideBorder(
       space.x,
       space.y,
       currentBoard,
       size,
-      "bottom"
+      "bottom",
+      true
     );
 
     let numberOfBlack = 0;
+    let numberOfWhite = 0;
+    let undefined = 0;
     [left, right, top, bottom].forEach((stone) => {
-      if (!stone || stone?.color === "black") {
+      if (!stone) {
+        undefined++;
+      }
+      if (stone?.color === "black") {
         numberOfBlack++;
+      } else if (stone?.color === "white") {
+        numberOfWhite++;
       }
     });
-    if (numberOfBlack > 3 || group.length > 1) {
+    if (numberOfBlack === 2 && numberOfWhite === 2) {
+    } else if (
+      (numberOfBlack > 1 && numberOfWhite === 0) ||
+      (numberOfWhite > 1 && numberOfBlack === 0)
+    ) {
       groups.push(group);
     }
     spaces = spaces.filter((_) => !group.includes(_));
@@ -262,7 +295,8 @@ function getSideBorder(
   y: number,
   board: Stone[],
   size: Size,
-  side: "left" | "top" | "right" | "bottom"
+  side: "left" | "top" | "right" | "bottom",
+  nested: boolean = false
 ) {
   let _x = x;
   let _y = y;
@@ -289,11 +323,61 @@ function getSideBorder(
   }
   while (checker() && !stone) {
     stone = board.find(getSpaceOrStone(_x, _y));
+    if (!nested && stone && isDeadStone(stone, board, size)) {
+      stone = undefined;
+    }
     incrementor();
     // break;
   }
 
   return stone;
+}
+
+function isDeadStone(_stone: Stone, board: Stone[], size: Size) {
+  let left: Stone | undefined = getSideBorder(
+    _stone.x - 1,
+    _stone.y,
+    board,
+    size,
+    "left",
+    true
+  );
+  let top: Stone | undefined = getSideBorder(
+    _stone.x,
+    _stone.y - 1,
+    board,
+    size,
+    "top",
+    true
+  );
+  let right: Stone | undefined = getSideBorder(
+    _stone.x + 1,
+    _stone.y,
+    board,
+    size,
+    "right",
+    true
+  );
+  let bottom: Stone | undefined = getSideBorder(
+    _stone.x,
+    _stone.y + 1,
+    board,
+    size,
+    "bottom",
+    true
+  );
+  let numberOfBlack = 0;
+  [left, right, top, bottom].forEach((stone) => {
+    if (!stone || stone?.color === "black") {
+      numberOfBlack++;
+    }
+  });
+  if (
+    (numberOfBlack > 2 && _stone.color === "white") ||
+    (numberOfBlack < 2 && _stone.color === "black")
+  ) {
+    return true;
+  }
 }
 
 function removeDeadStone(size: Size, currentBoard: Stone[]): CleanBoard {
@@ -304,6 +388,7 @@ function removeDeadStone(size: Size, currentBoard: Stone[]): CleanBoard {
   while (_board.length) {
     const stone = _board.pop()!;
     const group = getDeadStone(stone, boardWithoutDeadStone, size);
+    // All group of stones which has 1 health should consider dead
     if (group.liberties === 1) {
       const _stone = group.stones[0];
       boardWithoutDeadStone = boardWithoutDeadStone.filter(
@@ -315,59 +400,63 @@ function removeDeadStone(size: Size, currentBoard: Stone[]): CleanBoard {
       } else {
         blackTaken += group.stones.length;
       }
-    }
-    // if (group.liberties > 2 && group.stones.length === 1) {
-    //   const _stone = group.stones[0];
+      // check if the stone
+    } else if (group.stones.length === 1) {
+      const _stone = group.stones[0];
 
-    //   let left: Stone | undefined = getSideBorder(
-    //     _stone.x - 1,
-    //     _stone.y,
-    //     boardWithoutDeadStone,
-    //     size,
-    //     "left"
-    //   );
-    //   let top: Stone | undefined = getSideBorder(
-    //     _stone.x,
-    //     _stone.y - 1,
-    //     boardWithoutDeadStone,
-    //     size,
-    //     "top"
-    //   );
-    //   let right: Stone | undefined = getSideBorder(
-    //     _stone.x + 1,
-    //     _stone.y,
-    //     boardWithoutDeadStone,
-    //     size,
-    //     "right"
-    //   );
-    //   let bottom: Stone | undefined = getSideBorder(
-    //     _stone.x,
-    //     _stone.y + 1,
-    //     boardWithoutDeadStone,
-    //     size,
-    //     "bottom"
-    //   );
-    //   let numberOfBlack = 0;
-    //   [left, right, top, bottom].forEach((stone) => {
-    //     if (!stone || stone?.color === "black") {
-    //       numberOfBlack++;
-    //     }
-    //   });
-    //   if (
-    //     (numberOfBlack > 2 && stone.color === "white") ||
-    //     (numberOfBlack < 2 && stone.color === "black")
-    //   ) {
-    //     boardWithoutDeadStone = boardWithoutDeadStone.filter(
-    //       (_) => !group.stones.includes(_)
-    //     );
-    //     _board = boardWithoutDeadStone.filter((_) => !group.stones.includes(_));
-    //     if (_stone.color === "black") {
-    //       whiteTaken += group.stones.length;
-    //     } else {
-    //       blackTaken += group.stones.length;
-    //     }
-    //   }
-    // }
+      let left: Stone | undefined = getSideBorder(
+        _stone.x - 1,
+        _stone.y,
+        boardWithoutDeadStone,
+        size,
+        "left",
+        true
+      );
+      let top: Stone | undefined = getSideBorder(
+        _stone.x,
+        _stone.y - 1,
+        boardWithoutDeadStone,
+        size,
+        "top",
+        true
+      );
+      let right: Stone | undefined = getSideBorder(
+        _stone.x + 1,
+        _stone.y,
+        boardWithoutDeadStone,
+        size,
+        "right",
+        true
+      );
+      let bottom: Stone | undefined = getSideBorder(
+        _stone.x,
+        _stone.y + 1,
+        boardWithoutDeadStone,
+        size,
+        "bottom",
+        true
+      );
+      let numberOfBlack = 0;
+      [left, right, top, bottom].forEach((stone) => {
+        if (!stone || stone?.color === "black") {
+          numberOfBlack++;
+        }
+      });
+      if (
+        (numberOfBlack > 2 && stone.color === "white") ||
+        (numberOfBlack < 2 && stone.color === "black")
+      ) {
+        boardWithoutDeadStone = boardWithoutDeadStone.filter(
+          (_) => !group.stones.includes(_)
+        );
+        _board = boardWithoutDeadStone.filter((_) => !group.stones.includes(_));
+        if (_stone.color === "black") {
+          whiteTaken += group.stones.length;
+        } else {
+          blackTaken += group.stones.length;
+        }
+      }
+    }
     // if (group.liberties <= 2 && group.stones.length > 1) {
     //   // Consider dead
     //   const _stone = group.stones[0];

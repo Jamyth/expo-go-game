@@ -43,7 +43,9 @@ export const GameScreen = React.memo(({ navigation }: Props) => {
     navigation.setOptions({
       title: matchName,
     });
+  }, [matchName]);
 
+  React.useEffect(() => {
     return () => {
       saveGame(ref.current);
       // resetCreateNewGameState();
