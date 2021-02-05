@@ -38,13 +38,6 @@ export const EditScreen = React.memo(({ navigation }: Props) => {
       game,
     });
   };
-
-  const handicapTranslator = (handicap: number) => {
-    if (handicap === 0) {
-      return `不讓子`;
-    }
-    return `讓${handicap}子`;
-  };
   const komiTranslator = (komi: number) => {
     if (komi === 0) {
       return `不貼目`;
@@ -59,7 +52,7 @@ export const EditScreen = React.memo(({ navigation }: Props) => {
         <Form.Item>
           <Input
             label="對局名稱"
-            value={state.matchName}
+            defaultValue={state.matchName}
             onChangeText={updateMatchName}
           />
         </Form.Item>
@@ -67,7 +60,7 @@ export const EditScreen = React.memo(({ navigation }: Props) => {
           <Input
             label="玩家一名稱 (黑棋)"
             placeholder="Player 1 Name"
-            value={state.player1.name}
+            defaultValue={state.player1.name}
             onChangeText={(name) => updatePlayer1({ name })}
           />
         </Form.Item>
@@ -75,7 +68,7 @@ export const EditScreen = React.memo(({ navigation }: Props) => {
           <Input
             label="玩家二名稱 (白棋)"
             placeholder="Player 2 Name"
-            value={state.player2.name}
+            defaultValue={state.player2.name}
             onChangeText={(name) => updatePlayer2({ name })}
           />
         </Form.Item>
